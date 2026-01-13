@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claude Code Demo - Capabilities Showcase</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header class="hero">
+            <div class="hero-content">
+                <h1 class="glitch" data-text="Claude Code">Claude Code</h1>
+                <p class="subtitle">AI-Powered Development Assistant</p>
+                <p class="tagline">Demonstrating what I can do...</p>
+            </div>
+        </header>
+
+        <section class="capabilities">
+            <h2>My Capabilities</h2>
+            <div class="capability-grid">
+                <div class="capability-card" data-capability="code">
+                    <div class="icon">💻</div>
+                    <h3>Code Analysis & Development</h3>
+                    <p>Read, understand, and modify code across multiple languages. Write clean, efficient solutions.</p>
+                    <ul>
+                        <li>Multi-language support</li>
+                        <li>Refactoring & optimization</li>
+                        <li>Bug detection & fixing</li>
+                    </ul>
+                </div>
+
+                <div class="capability-card" data-capability="git">
+                    <div class="icon">🔀</div>
+                    <h3>Git Operations</h3>
+                    <p>Full git workflow management including branching, committing, and pull requests.</p>
+                    <ul>
+                        <li>Branch management</li>
+                        <li>Smart commits</li>
+                        <li>PR creation</li>
+                    </ul>
+                </div>
+
+                <div class="capability-card" data-capability="search">
+                    <div class="icon">🔍</div>
+                    <h3>Intelligent Search</h3>
+                    <p>Find files, search code patterns, and explore codebases efficiently.</p>
+                    <ul>
+                        <li>Pattern matching</li>
+                        <li>Regex support</li>
+                        <li>Codebase exploration</li>
+                    </ul>
+                </div>
+
+                <div class="capability-card" data-capability="build">
+                    <div class="icon">⚙️</div>
+                    <h3>Build & Test</h3>
+                    <p>Run builds, execute tests, and automate development workflows.</p>
+                    <ul>
+                        <li>Build automation</li>
+                        <li>Test execution</li>
+                        <li>CI/CD integration</li>
+                    </ul>
+                </div>
+
+                <div class="capability-card" data-capability="web">
+                    <div class="icon">🌐</div>
+                    <h3>Web Research</h3>
+                    <p>Fetch documentation, search for solutions, and stay up-to-date.</p>
+                    <ul>
+                        <li>Documentation lookup</li>
+                        <li>API research</li>
+                        <li>Current best practices</li>
+                    </ul>
+                </div>
+
+                <div class="capability-card" data-capability="task">
+                    <div class="icon">✅</div>
+                    <h3>Task Management</h3>
+                    <p>Plan, track, and execute complex multi-step development tasks.</p>
+                    <ul>
+                        <li>Task planning</li>
+                        <li>Progress tracking</li>
+                        <li>Priority management</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section class="demo-section">
+            <h2>Interactive Demo</h2>
+            <div class="demo-container">
+                <div class="code-editor">
+                    <div class="editor-header">
+                        <span class="dot dot-red"></span>
+                        <span class="dot dot-yellow"></span>
+                        <span class="dot dot-green"></span>
+                        <span class="editor-title">demo.js</span>
+                    </div>
+                    <pre class="code-content"><code id="typewriter">// Click the Run button to see me in action!
+function demonstrateCapabilities() {
+    const capabilities = [
+        'Code Analysis',
+        'File Operations',
+        'Git Management',
+        'Build Automation',
+        'Web Research',
+        'Task Planning'
+    ];
+
+    capabilities.forEach(cap => {
+        console.log(`✓ ${cap}`);
+    });
+
+    return 'Ready to assist!';
+}</code></pre>
+                </div>
+                <button class="run-button" onclick="runDemo()">▶ Run Demo</button>
+                <div class="output-container">
+                    <div class="output-header">Console Output</div>
+                    <pre class="output-content" id="output">Click 'Run Demo' to see the output...</pre>
+                </div>
+            </div>
+        </section>
+
+        <section class="stats-section">
+            <h2>Real-time Stats</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number" data-target="100">0</div>
+                    <div class="stat-label">Languages Supported</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" data-target="24">0</div>
+                    <div class="stat-label">Hours Available</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" data-target="1000">0</div>
+                    <div class="stat-label">Tasks Completed</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" data-target="99">0</div>
+                    <div class="stat-label">Success Rate %</div>
+                </div>
+            </div>
+        </section>
+
+        <footer>
+            <p>Built by Claude Code • Demonstrating AI-Powered Development</p>
+            <p class="footer-note">This entire site was created to showcase my capabilities</p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
