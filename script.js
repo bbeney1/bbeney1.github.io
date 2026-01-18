@@ -1,509 +1,464 @@
 // =============================================
-// MONO—01 - Subtle Interactions
-// Motion with Purpose / Restraint in Code
+// MONO—01 FLUID INTERFACE
+// Living Canvas / Magnetic Physics / Gesture Control
 // =============================================
 
-// Smooth scroll for anchor links
-document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function (e) {
-        e.preventDefault();
-        const target = document.querySelector(this.getAttribute('href'));
-        if (target) {
-            target.scrollIntoView({
-                behavior: 'smooth',
-                block: 'start'
-            });
-        }
-    });
-});
-
-// Intersection Observer for fade-in animations
-const observerOptions = {
-    threshold: 0.15,
-    rootMargin: '0px 0px -80px 0px'
+// ===== STATE =====
+const state = {
+    mouse: { x: 0, y: 0 },
+    currentFinish: 'black',
+    quantity: 1,
+    basePrice: 2400,
+    cart: [],
+    isDraggingProduct: false,
+    isDraggingQuantity: false,
+    productPosition: { x: 0, y: 0 }
 };
 
-const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-        if (entry.isIntersecting) {
-            entry.target.classList.add('visible');
-        }
-    });
-}, observerOptions);
+// ===== CUSTOM CURSOR =====
+const cursor = document.querySelector('.fluid-cursor');
+let cursorX = 0;
+let cursorY = 0;
 
-// Observe elements for fade-in
-window.addEventListener('DOMContentLoaded', () => {
-    const elementsToAnimate = document.querySelectorAll(`
-        .feature-block,
-        .spec-item,
-        .detail-container,
-        .closing-text
-    `);
-
-    elementsToAnimate.forEach(el => {
-        el.classList.add('fade-in');
-        observer.observe(el);
-    });
+document.addEventListener('mousemove', (e) => {
+    state.mouse.x = e.clientX;
+    state.mouse.y = e.clientY;
+    cursorX = e.clientX;
+    cursorY = e.clientY;
 });
 
-// Manifesto lines animation
-const manifestoObserver = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-        if (entry.isIntersecting) {
-            const lines = entry.target.querySelectorAll('.manifesto-line');
-            lines.forEach(line => line.classList.add('visible'));
-        }
-    });
-}, { threshold: 0.3 });
-
-const manifestoSection = document.querySelector('.manifesto');
-if (manifestoSection) {
-    manifestoObserver.observe(manifestoSection);
+function updateCursor() {
+    cursor.style.transform = `translate(${cursorX - 20}px, ${cursorY - 20}px)`;
+    requestAnimationFrame(updateCursor);
 }
+updateCursor();
 
-// Product object parallax on scroll
-const productObject = document.querySelector('.object-shell');
-if (productObject) {
-    window.addEventListener('scroll', () => {
-        const scrolled = window.pageYOffset;
-        const objectPosition = productObject.getBoundingClientRect().top + window.pageYOffset;
-        const windowHeight = window.innerHeight;
-
-        if (scrolled > objectPosition - windowHeight && scrolled < objectPosition + 500) {
-            const offset = (scrolled - (objectPosition - windowHeight)) * 0.1;
-            productObject.style.transform = `translateY(${offset}px)`;
-        }
-    });
-}
-
-// 3D tilt effect on product object
-if (productObject) {
-    const container = productObject.closest('.product-image');
-
-    container.addEventListener('mousemove', (e) => {
-        const rect = container.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
-
-        const centerX = rect.width / 2;
-        const centerY = rect.height / 2;
-
-        const rotateX = (y - centerY) / 20;
-        const rotateY = (centerX - x) / 20;
-
-        productObject.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+// Cursor size on hover
+document.querySelectorAll('[data-magnetic], .orb, .product-object, .quantity-handle, .wormhole-core')
+    .forEach(el => {
+        el.addEventListener('mouseenter', () => cursor.classList.add('active'));
+        el.addEventListener('mouseleave', () => cursor.classList.remove('active'));
     });
 
-    container.addEventListener('mouseleave', () => {
-        productObject.style.transform = 'perspective(1000px) rotateX(0) rotateY(0)';
-    });
-}
+// ===== RIPPLE CANVAS =====
+const canvas = document.getElementById('ripple-canvas');
+const ctx = canvas.getContext('2d');
 
-// Navbar background on scroll
-const nav = document.querySelector('.nav');
-let lastScroll = 0;
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
 
-window.addEventListener('scroll', () => {
-    const currentScroll = window.pageYOffset;
+window.addEventListener('resize', () => {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+});
 
-    if (currentScroll > 100) {
-        nav.style.background = 'rgba(255, 255, 255, 0.95)';
-        nav.style.boxShadow = '0 1px 0 rgba(0, 0, 0, 0.05)';
-    } else {
-        nav.style.background = 'rgba(255, 255, 255, 0.8)';
-        nav.style.boxShadow = 'none';
+const ripples = [];
+
+class Ripple {
+    constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.radius = 0;
+        this.maxRadius = 150;
+        this.speed = 3;
+        this.opacity = 1;
     }
 
-    lastScroll = currentScroll;
-});
+    update() {
+        this.radius += this.speed;
+        this.opacity = 1 - (this.radius / this.maxRadius);
+    }
 
-// Smooth button interactions
-const buttons = document.querySelectorAll('.btn-primary');
+    draw() {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.strokeStyle = `rgba(0, 0, 0, ${this.opacity * 0.3})`;
+        ctx.lineWidth = 2;
+        ctx.stroke();
+    }
 
-buttons.forEach(button => {
-    button.addEventListener('mouseenter', function() {
-        this.style.transition = 'all 0.3s cubic-bezier(0.23, 1, 0.32, 1)';
-    });
-});
-
-// Stagger feature blocks
-const staggerElements = (selector, delay = 100) => {
-    const elements = document.querySelectorAll(selector);
-    elements.forEach((el, index) => {
-        el.style.transitionDelay = `${index * delay}ms`;
-    });
-};
-
-staggerElements('.feature-block', 150);
-staggerElements('.spec-item', 80);
-
-// Console message
-console.log('%c MONO—01', 'font-size: 32px; font-weight: 200; letter-spacing: 0.1em;');
-console.log('%c "What remains when everything unnecessary is removed."', 'font-size: 14px; color: #666;');
-console.log('%c © 2024 MONO', 'font-size: 11px; color: #999; margin-top: 10px;');
-
-// Page load optimization
-window.addEventListener('load', () => {
-    document.body.style.opacity = '1';
-});
-
-// Handle reduced motion preference
-const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-
-if (prefersReducedMotion.matches) {
-    document.querySelectorAll('.fade-in, .manifesto-line').forEach(el => {
-        el.style.animation = 'none';
-        el.style.transition = 'none';
-        el.style.opacity = '1';
-        el.style.transform = 'none';
-    });
+    isDead() {
+        return this.radius >= this.maxRadius;
+    }
 }
 
-// Subtle cursor effect (desktop only)
-if (window.innerWidth > 1024) {
-    const cursor = document.createElement('div');
-    cursor.style.cssText = `
-        position: fixed;
-        width: 8px;
-        height: 8px;
-        background: black;
-        border-radius: 50%;
-        pointer-events: none;
-        z-index: 10000;
-        mix-blend-mode: difference;
-        transition: transform 0.15s cubic-bezier(0.23, 1, 0.32, 1);
-        display: none;
-    `;
-    document.body.appendChild(cursor);
+document.addEventListener('click', (e) => {
+    ripples.push(new Ripple(e.clientX, e.clientY));
+});
 
-    let mouseX = 0;
-    let mouseY = 0;
-    let cursorX = 0;
-    let cursorY = 0;
+function animateRipples() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    for (let i = ripples.length - 1; i >= 0; i--) {
+        ripples[i].update();
+        ripples[i].draw();
+
+        if (ripples[i].isDead()) {
+            ripples.splice(i, 1);
+        }
+    }
+
+    requestAnimationFrame(animateRipples);
+}
+animateRipples();
+
+// ===== MAGNETIC ELEMENTS =====
+function applyMagneticEffect() {
+    const magneticElements = document.querySelectorAll('[data-magnetic]');
+
+    magneticElements.forEach(el => {
+        const rect = el.getBoundingClientRect();
+        const centerX = rect.left + rect.width / 2;
+        const centerY = rect.top + rect.height / 2;
+
+        const distance = Math.sqrt(
+            Math.pow(state.mouse.x - centerX, 2) +
+            Math.pow(state.mouse.y - centerY, 2)
+        );
+
+        const maxDistance = 200;
+        const strength = parseFloat(el.getAttribute('data-magnetic-strength')) || 0.3;
+
+        if (distance < maxDistance) {
+            const pullX = (state.mouse.x - centerX) * strength;
+            const pullY = (state.mouse.y - centerY) * strength;
+
+            el.style.transform = `translate(${pullX}px, ${pullY}px)`;
+        } else {
+            el.style.transform = 'translate(0, 0)';
+        }
+    });
+
+    requestAnimationFrame(applyMagneticEffect);
+}
+applyMagneticEffect();
+
+// ===== PRODUCT OBJECT DRAGGING =====
+const productObject = document.getElementById('product-object');
+const productContainer = document.getElementById('product-container');
+let productDragOffset = { x: 0, y: 0 };
+
+if (productObject && productContainer) {
+    productObject.addEventListener('mousedown', (e) => {
+        state.isDraggingProduct = true;
+        productObject.classList.add('dragging');
+
+        const rect = productObject.getBoundingClientRect();
+        productDragOffset.x = e.clientX - rect.left - rect.width / 2;
+        productDragOffset.y = e.clientY - rect.top - rect.height / 2;
+    });
 
     document.addEventListener('mousemove', (e) => {
-        mouseX = e.clientX;
-        mouseY = e.clientY;
-        cursor.style.display = 'block';
+        if (!state.isDraggingProduct) return;
+
+        const containerRect = productContainer.getBoundingClientRect();
+        let x = e.clientX - containerRect.left - productDragOffset.x;
+        let y = e.clientY - containerRect.top - productDragOffset.y;
+
+        // Constrain to container with some padding
+        const padding = 50;
+        x = Math.max(padding, Math.min(containerRect.width - padding, x));
+        y = Math.max(padding, Math.min(containerRect.height - padding, y));
+
+        state.productPosition.x = x;
+        state.productPosition.y = y;
+
+        productObject.style.left = `${x}px`;
+        productObject.style.top = `${y}px`;
+        productObject.style.transform = 'translate(-50%, -50%)';
+
+        // Check if near cart zone
+        checkCartZoneProximity(e.clientX, e.clientY);
     });
 
-    function animateCursor() {
-        cursorX += (mouseX - cursorX) * 0.2;
-        cursorY += (mouseY - cursorY) * 0.2;
+    document.addEventListener('mouseup', () => {
+        if (state.isDraggingProduct) {
+            state.isDraggingProduct = false;
+            productObject.classList.remove('dragging');
 
-        cursor.style.left = cursorX + 'px';
-        cursor.style.top = cursorY + 'px';
+            // Check if dropped in cart zone
+            const cartZone = document.getElementById('cart-zone');
+            if (cartZone) {
+                const rect = cartZone.getBoundingClientRect();
+                if (state.mouse.x > rect.left &&
+                    state.mouse.x < rect.right &&
+                    state.mouse.y > rect.top &&
+                    state.mouse.y < rect.bottom) {
+                    addToCart();
+                }
+            }
 
-        requestAnimationFrame(animateCursor);
-    }
-
-    animateCursor();
-
-    // Enlarge cursor on interactive elements
-    const interactiveElements = document.querySelectorAll('a, button, .object-shell');
-
-    interactiveElements.forEach(el => {
-        el.addEventListener('mouseenter', () => {
-            cursor.style.transform = 'scale(3)';
-        });
-
-        el.addEventListener('mouseleave', () => {
-            cursor.style.transform = 'scale(1)';
-        });
+            // Snap back to center with elastic animation
+            productObject.style.left = '50%';
+            productObject.style.top = '50%';
+            productObject.style.transform = 'translate(-50%, -50%)';
+        }
     });
 }
 
-// Keyboard shortcuts (Easter egg)
-let keys = [];
-document.addEventListener('keydown', (e) => {
-    keys.push(e.key);
-    keys = keys.slice(-4);
+function checkCartZoneProximity(x, y) {
+    const cartZone = document.getElementById('cart-zone');
+    if (!cartZone) return;
 
-    // Type "mono" for easter egg
-    if (keys.join('') === 'mono') {
-        console.log('%c 🎯 EASTER EGG FOUND', 'font-size: 16px; font-weight: 600;');
-        console.log('%c You appreciate the details. We like that.', 'font-size: 12px; color: #666;');
-        keys = [];
+    const rect = cartZone.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+
+    const distance = Math.sqrt(
+        Math.pow(x - centerX, 2) +
+        Math.pow(y - centerY, 2)
+    );
+
+    const indicator = cartZone.querySelector('.gravity-indicator');
+    if (distance < 300) {
+        const scale = 1 + (300 - distance) / 300 * 0.3;
+        indicator.style.transform = `translate(-50%, -50%) scale(${scale})`;
+    } else {
+        indicator.style.transform = 'translate(-50%, -50%) scale(1)';
     }
+}
+
+// ===== FINISH SELECTOR (Orbs) =====
+const orbs = document.querySelectorAll('.orb');
+
+orbs.forEach(orb => {
+    orb.addEventListener('click', () => {
+        const finish = orb.getAttribute('data-finish');
+        selectFinish(finish);
+    });
 });
 
-// =============================================
-// CONFIGURATOR & CART SYSTEM
-// Mindblowing Interactions
-// =============================================
+function selectFinish(finish) {
+    state.currentFinish = finish;
 
-// Configuration state
-let currentConfig = {
-    finish: 'matte-black',
-    quantity: 1,
-    basePrice: 2400
-};
-
-// Cart state
-let cart = [];
-
-// Price formatting
-const formatPrice = (price) => {
-    return `$${price.toLocaleString()}`;
-};
-
-// Update price display
-const updatePrice = () => {
-    const totalPrice = currentConfig.basePrice * currentConfig.quantity;
-    document.getElementById('price-display').textContent = formatPrice(totalPrice);
-
-    const btnPrice = document.querySelector('.btn-price');
-    if (btnPrice) {
-        btnPrice.textContent = formatPrice(totalPrice);
-    }
-};
-
-// Finish selector
-const selectFinish = (finish) => {
-    currentConfig.finish = finish;
-
-    // Update active state on buttons
-    document.querySelectorAll('.finish-option').forEach(option => {
-        option.classList.remove('active');
-    });
+    // Update active state
+    orbs.forEach(o => o.classList.remove('active'));
     document.querySelector(`[data-finish="${finish}"]`).classList.add('active');
 
-    // Update product object appearance
-    const objectShell = document.querySelector('.object-shell');
-    if (objectShell) {
-        objectShell.className = 'object-shell';
-        objectShell.classList.add(finish);
+    // Update product appearance
+    if (productObject) {
+        productObject.className = 'product-object';
+        productObject.classList.add(`finish-${finish}`);
     }
-};
 
-// Quantity controls
-const increaseQty = () => {
-    if (currentConfig.quantity < 10) {
-        currentConfig.quantity++;
-        document.getElementById('qty-display').textContent = currentConfig.quantity;
+    showToast(`Changed to ${finish.toUpperCase()}`);
+}
+
+// ===== QUANTITY SLIDER =====
+const quantityHandle = document.getElementById('quantity-handle');
+const quantityTrack = document.getElementById('quantity-track');
+const handleValue = document.getElementById('handle-value');
+
+if (quantityHandle && quantityTrack) {
+    quantityHandle.addEventListener('mousedown', (e) => {
+        state.isDraggingQuantity = true;
+        e.preventDefault();
+    });
+
+    document.addEventListener('mousemove', (e) => {
+        if (!state.isDraggingQuantity) return;
+
+        const trackRect = quantityTrack.getBoundingClientRect();
+        let x = e.clientX - trackRect.left;
+
+        // Constrain to track
+        x = Math.max(50, Math.min(trackRect.width - 50, x));
+
+        // Convert to quantity (1-10)
+        const percentage = (x - 50) / (trackRect.width - 100);
+        state.quantity = Math.round(1 + percentage * 9);
+
+        // Update position
+        quantityHandle.style.left = `${x}px`;
+
+        // Update display
+        if (handleValue) {
+            handleValue.textContent = state.quantity;
+        }
+
         updatePrice();
-    }
-};
+    });
 
-const decreaseQty = () => {
-    if (currentConfig.quantity > 1) {
-        currentConfig.quantity--;
-        document.getElementById('qty-display').textContent = currentConfig.quantity;
-        updatePrice();
-    }
-};
+    document.addEventListener('mouseup', () => {
+        if (state.isDraggingQuantity) {
+            state.isDraggingQuantity = false;
+        }
+    });
+}
 
-// Show toast notification
-const showToast = (message = 'Added to cart') => {
+// ===== PRICE CALCULATOR =====
+function updatePrice() {
+    const total = state.basePrice * state.quantity;
+    const priceDisplay = document.getElementById('price-display');
+
+    if (priceDisplay) {
+        priceDisplay.textContent = `$${total.toLocaleString()}`;
+    }
+}
+
+// ===== CART SYSTEM =====
+function addToCart() {
+    const finishNames = {
+        'black': 'Matte Black',
+        'aluminum': 'Brushed Aluminum',
+        'white': 'Matte White',
+        'titanium': 'Titanium'
+    };
+
+    const item = {
+        finish: state.currentFinish,
+        finishName: finishNames[state.currentFinish],
+        quantity: state.quantity,
+        price: state.basePrice
+    };
+
+    // Check if same finish exists
+    const existingIndex = state.cart.findIndex(cartItem => cartItem.finish === item.finish);
+
+    if (existingIndex >= 0) {
+        state.cart[existingIndex].quantity += item.quantity;
+    } else {
+        state.cart.push(item);
+    }
+
+    updateCartDisplay();
+    updateCartCount();
+    showToast('Added to cart');
+
+    // Reset quantity
+    state.quantity = 1;
+    if (handleValue) handleValue.textContent = '1';
+    if (quantityHandle) quantityHandle.style.left = '10%';
+    updatePrice();
+}
+
+function updateCartDisplay() {
+    const cartItems = document.getElementById('cart-items');
+    if (!cartItems) return;
+
+    cartItems.innerHTML = state.cart.map((item, index) => `
+        <div class="cart-item-mini" data-index="${index}">
+            ${item.finishName.split(' ')[0]}<br>×${item.quantity}
+        </div>
+    `).join('');
+}
+
+function updateCartCount() {
+    const totalItems = state.cart.reduce((sum, item) => sum + item.quantity, 0);
+    const cartCount = document.getElementById('cart-count');
+
+    if (cartCount) {
+        cartCount.textContent = totalItems;
+    }
+}
+
+function updateCheckoutTotal() {
+    const total = state.cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    const checkoutTotal = document.getElementById('checkout-total');
+
+    if (checkoutTotal) {
+        checkoutTotal.textContent = `$${total.toLocaleString()}`;
+    }
+}
+
+// ===== CHECKOUT WORMHOLE =====
+const wormholeCore = document.querySelector('.wormhole-core');
+
+if (wormholeCore) {
+    wormholeCore.addEventListener('click', () => {
+        checkout();
+    });
+}
+
+function checkout() {
+    if (state.cart.length === 0) {
+        showToast('Cart is empty');
+        return;
+    }
+
+    const total = state.cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+    console.log('%c 🌀 CHECKOUT INITIATED', 'font-size: 18px; font-weight: 700;');
+    console.log(`%c Total: $${total.toLocaleString()}`, 'font-size: 14px;');
+    console.log('%c Items:', 'font-size: 14px;');
+    state.cart.forEach(item => {
+        console.log(`  • ${item.finishName} × ${item.quantity} = $${(item.price * item.quantity).toLocaleString()}`);
+    });
+
+    showToast('Checkout complete ✓');
+
+    // Clear cart
+    setTimeout(() => {
+        state.cart = [];
+        updateCartDisplay();
+        updateCartCount();
+        updateCheckoutTotal();
+    }, 2000);
+}
+
+// ===== TOAST NOTIFICATIONS =====
+function showToast(message) {
     const toast = document.getElementById('toast');
     const toastText = toast.querySelector('.toast-text');
-    toastText.textContent = message;
+
+    if (toastText) {
+        toastText.textContent = message;
+    }
 
     toast.classList.add('show');
 
     setTimeout(() => {
         toast.classList.remove('show');
     }, 2500);
-};
+}
 
-// Update cart count badge
-const updateCartCount = () => {
-    const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
-    document.getElementById('cart-count').textContent = totalItems;
-};
+// ===== AMBIENT PARTICLES =====
+function createParticles() {
+    const particlesContainer = document.getElementById('particles');
+    if (!particlesContainer) return;
 
-// Update cart total
-const updateCartTotal = () => {
-    const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    document.getElementById('total-amount').textContent = formatPrice(total);
-};
+    const particleCount = 20;
 
-// Render cart items
-const renderCart = () => {
-    const cartItems = document.getElementById('cart-items');
-    const cartEmpty = document.getElementById('cart-empty');
+    for (let i = 0; i < particleCount; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
 
-    if (cart.length === 0) {
-        cartEmpty.style.display = 'block';
-        cartItems.style.display = 'none';
-    } else {
-        cartEmpty.style.display = 'none';
-        cartItems.style.display = 'block';
+        particle.style.left = `${Math.random() * 100}%`;
+        particle.style.top = `${Math.random() * 100}%`;
+        particle.style.animationDelay = `${Math.random() * 20}s`;
+        particle.style.animationDuration = `${15 + Math.random() * 10}s`;
 
-        cartItems.innerHTML = cart.map((item, index) => `
-            <div class="cart-item">
-                <div class="cart-item-image">
-                    <div class="cart-item-object ${item.finish}"></div>
-                </div>
-                <div class="cart-item-details">
-                    <div class="cart-item-name">MONO—01</div>
-                    <div class="cart-item-finish">${item.finishName}</div>
-                    <div class="cart-item-quantity">Qty: ${item.quantity}</div>
-                </div>
-                <div class="cart-item-right">
-                    <div class="cart-item-price">${formatPrice(item.price * item.quantity)}</div>
-                    <button class="cart-item-remove" onclick="removeFromCart(${index})">×</button>
-                </div>
-            </div>
-        `).join('');
+        particlesContainer.appendChild(particle);
     }
+}
 
-    updateCartTotal();
-};
-
-// Add to cart
-const addToCart = () => {
-    const finishNames = {
-        'matte-black': 'Matte Black',
-        'brushed-aluminum': 'Brushed Aluminum',
-        'matte-white': 'Matte White',
-        'titanium': 'Titanium'
-    };
-
-    const item = {
-        finish: currentConfig.finish,
-        finishName: finishNames[currentConfig.finish],
-        quantity: currentConfig.quantity,
-        price: currentConfig.basePrice
-    };
-
-    // Check if same finish already in cart
-    const existingIndex = cart.findIndex(cartItem => cartItem.finish === item.finish);
-
-    if (existingIndex >= 0) {
-        cart[existingIndex].quantity += item.quantity;
-    } else {
-        cart.push(item);
-    }
-
-    updateCartCount();
-    renderCart();
-    showToast();
-
-    // Reset quantity to 1
-    currentConfig.quantity = 1;
-    document.getElementById('qty-display').textContent = 1;
-    updatePrice();
-};
-
-// Remove from cart
-const removeFromCart = (index) => {
-    cart.splice(index, 1);
-    updateCartCount();
-    renderCart();
-};
-
-// Toggle cart sidebar
-const toggleCart = () => {
-    const cartSidebar = document.getElementById('cart-sidebar');
-    cartSidebar.classList.toggle('active');
-
-    // Prevent body scroll when cart is open
-    if (cartSidebar.classList.contains('active')) {
-        document.body.style.overflow = 'hidden';
-    } else {
-        document.body.style.overflow = '';
-    }
-};
-
-// Checkout
-const checkout = () => {
-    if (cart.length === 0) {
-        showToast('Your cart is empty');
-        return;
-    }
-
-    const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    console.log('%c 🎯 CHECKOUT INITIATED', 'font-size: 16px; font-weight: 600;');
-    console.log(`%c Total: ${formatPrice(total)}`, 'font-size: 14px; color: #666;');
-    console.log('%c Items:', 'font-size: 14px; color: #666;');
-    cart.forEach(item => {
-        console.log(`  - ${item.finishName} × ${item.quantity}`);
-    });
-
-    showToast('Checkout coming soon...');
-};
-
-// =============================================
-// 3D DRAG-TO-ROTATE
-// =============================================
-
-const setupDragRotate = () => {
-    const objectShell = document.querySelector('.object-shell');
-    if (!objectShell) return;
-
-    let isDragging = false;
-    let startX, startY;
-    let currentRotationX = 0;
-    let currentRotationY = 0;
-    let targetRotationX = 0;
-    let targetRotationY = 0;
-
-    objectShell.addEventListener('mousedown', (e) => {
-        isDragging = true;
-        startX = e.clientX;
-        startY = e.clientY;
-        objectShell.style.cursor = 'grabbing';
-    });
-
-    document.addEventListener('mousemove', (e) => {
-        if (!isDragging) return;
-
-        const deltaX = e.clientX - startX;
-        const deltaY = e.clientY - startY;
-
-        targetRotationY = currentRotationY + (deltaX * 0.5);
-        targetRotationX = currentRotationX - (deltaY * 0.5);
-
-        // Clamp X rotation
-        targetRotationX = Math.max(-30, Math.min(30, targetRotationX));
-
-        objectShell.style.transform = `perspective(1000px) rotateX(${targetRotationX}deg) rotateY(${targetRotationY}deg)`;
-    });
-
-    document.addEventListener('mouseup', () => {
-        if (isDragging) {
-            isDragging = false;
-            currentRotationX = targetRotationX;
-            currentRotationY = targetRotationY;
-            objectShell.style.cursor = 'grab';
-        }
-    });
-
-    // Touch support
-    objectShell.addEventListener('touchstart', (e) => {
-        isDragging = true;
-        const touch = e.touches[0];
-        startX = touch.clientX;
-        startY = touch.clientY;
-        e.preventDefault();
-    });
-
-    document.addEventListener('touchmove', (e) => {
-        if (!isDragging) return;
-
-        const touch = e.touches[0];
-        const deltaX = touch.clientX - startX;
-        const deltaY = touch.clientY - startY;
-
-        targetRotationY = currentRotationY + (deltaX * 0.5);
-        targetRotationX = currentRotationX - (deltaY * 0.5);
-
-        targetRotationX = Math.max(-30, Math.min(30, targetRotationX));
-
-        objectShell.style.transform = `perspective(1000px) rotateX(${targetRotationX}deg) rotateY(${targetRotationY}deg)`;
-    });
-
-    document.addEventListener('touchend', () => {
-        if (isDragging) {
-            isDragging = false;
-            currentRotationX = targetRotationX;
-            currentRotationY = targetRotationY;
-        }
-    });
-};
-
-// Initialize drag-rotate on load
+// ===== INITIALIZE =====
 window.addEventListener('DOMContentLoaded', () => {
-    setupDragRotate();
+    createParticles();
+    updatePrice();
+    updateCheckoutTotal();
+
+    console.log('%c MONO—01 FLUID INTERFACE', 'font-size: 24px; font-weight: 700;');
+    console.log('%c Living Canvas Activated', 'font-size: 14px; color: #666;');
+    console.log('%c - Drag the product object', 'font-size: 12px;');
+    console.log('%c - Click orbs to change finish', 'font-size: 12px;');
+    console.log('%c - Drag quantity slider', 'font-size: 12px;');
+    console.log('%c - Drop product in cart zone to add', 'font-size: 12px;');
+    console.log('%c - Click wormhole to checkout', 'font-size: 12px;');
 });
+
+// ===== SMOOTH SCROLL =====
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function(e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+            target.scrollIntoView({ behavior: 'smooth' });
+        }
+    });
+});
+
+// Update checkout total periodically
+setInterval(() => {
+    updateCheckoutTotal();
+}, 1000);

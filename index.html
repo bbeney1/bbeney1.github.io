@@ -3,317 +3,144 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MONO—01 // A Study in Restraint</title>
+    <title>MONO—01 / Fluid Interface</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <!-- Ripple Canvas Background -->
+    <canvas id="ripple-canvas"></canvas>
 
-    <!-- Navigation -->
-    <nav class="nav">
-        <div class="nav-container">
-            <div class="nav-left">
-                <span class="logo">MONO</span>
-            </div>
-            <div class="nav-right">
-                <a href="#specs" class="nav-link">Specifications</a>
-                <button class="cart-trigger" onclick="toggleCart()">
-                    <span class="cart-text">Cart</span>
-                    <span class="cart-count" id="cart-count">0</span>
-                </button>
-            </div>
+    <!-- Fluid Cursor -->
+    <div class="fluid-cursor"></div>
+
+    <!-- Navigation (Minimal) -->
+    <nav class="fluid-nav" data-magnetic>
+        <div class="nav-item" data-magnetic-strength="0.3">MONO</div>
+        <div class="nav-item cart-magnetic" data-magnetic-strength="0.3">
+            <span>CART</span>
+            <span class="cart-count" id="cart-count">0</span>
         </div>
     </nav>
 
-    <!-- Hero -->
-    <section class="hero">
-        <div class="hero-container">
-            <div class="hero-label">"OBJECT"</div>
-            <h1 class="hero-title">MONO—01</h1>
-            <p class="hero-subtitle">A study in restraint.</p>
-        </div>
-    </section>
+    <!-- Main Fluid Container -->
+    <main class="fluid-container">
 
-    <!-- Product Image -->
-    <section class="product-showcase">
-        <div class="product-container">
-            <div class="product-image">
-                <div class="product-object">
-                    <div class="object-shell"></div>
+        <!-- Hero Section - Floating Typography -->
+        <section class="fluid-hero">
+            <div class="hero-label" data-magnetic data-magnetic-strength="0.15">"MONO—01"</div>
+            <h1 class="hero-title" data-magnetic data-magnetic-strength="0.25">
+                <span class="title-word" data-magnetic data-magnetic-strength="0.4">Pure</span>
+                <span class="title-word" data-magnetic data-magnetic-strength="0.35">Form</span>
+                <span class="title-word" data-magnetic data-magnetic-strength="0.3">Fluid</span>
+                <span class="title-word" data-magnetic data-magnetic-strength="0.45">Motion</span>
+            </h1>
+            <p class="hero-description" data-magnetic data-magnetic-strength="0.2">
+                The interface is alive. Touch it. Shape it. Feel it respond.
+            </p>
+        </section>
+
+        <!-- Floating Product Object -->
+        <section class="product-float">
+            <div class="product-container" id="product-container">
+                <!-- Product will float here with physics -->
+                <div class="product-object" id="product-object" draggable="true">
+                    <div class="object-core"></div>
+                    <div class="object-glow"></div>
+                    <div class="object-label" data-magnetic data-magnetic-strength="0.2">DRAG ME</div>
                 </div>
             </div>
-            <div class="product-caption">
-                <span class="caption-text">Drag to rotate. Pure form. Zero compromise.</span>
-            </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- Configurator -->
-    <section class="configurator">
-        <div class="configurator-container">
-            <div class="configurator-header">
-                <div class="config-label">"CONFIGURE"</div>
-                <h3 class="config-title">Make It Yours</h3>
-            </div>
+        <!-- Fluid Configurator -->
+        <section class="fluid-config">
+            <div class="config-title" data-magnetic data-magnetic-strength="0.2">SHAPE YOUR VISION</div>
 
-            <div class="config-options">
-                <div class="config-group">
-                    <div class="config-group-label">Finish</div>
-                    <div class="finish-options">
-                        <button class="finish-option active" data-finish="matte-black" onclick="selectFinish('matte-black')">
-                            <div class="finish-swatch matte-black"></div>
-                            <span class="finish-name">Matte Black</span>
-                        </button>
-                        <button class="finish-option" data-finish="brushed-aluminum" onclick="selectFinish('brushed-aluminum')">
-                            <div class="finish-swatch brushed-aluminum"></div>
-                            <span class="finish-name">Brushed Aluminum</span>
-                        </button>
-                        <button class="finish-option" data-finish="matte-white" onclick="selectFinish('matte-white')">
-                            <div class="finish-swatch matte-white"></div>
-                            <span class="finish-name">Matte White</span>
-                        </button>
-                        <button class="finish-option" data-finish="titanium" onclick="selectFinish('titanium')">
-                            <div class="finish-swatch titanium"></div>
-                            <span class="finish-name">Titanium</span>
-                        </button>
-                    </div>
+            <!-- Finish Orbs (Magnetic) -->
+            <div class="finish-orbs">
+                <div class="orb orb-black active" data-finish="black" data-magnetic data-magnetic-strength="0.5">
+                    <div class="orb-core"></div>
+                    <div class="orb-label">BLACK</div>
                 </div>
-
-                <div class="config-group">
-                    <div class="config-group-label">Quantity</div>
-                    <div class="quantity-selector">
-                        <button class="qty-btn" onclick="decreaseQty()">−</button>
-                        <span class="qty-display" id="qty-display">1</span>
-                        <button class="qty-btn" onclick="increaseQty()">+</button>
-                    </div>
+                <div class="orb orb-aluminum" data-finish="aluminum" data-magnetic data-magnetic-strength="0.5">
+                    <div class="orb-core"></div>
+                    <div class="orb-label">ALUMINUM</div>
+                </div>
+                <div class="orb orb-white" data-finish="white" data-magnetic data-magnetic-strength="0.5">
+                    <div class="orb-core"></div>
+                    <div class="orb-label">WHITE</div>
+                </div>
+                <div class="orb orb-titanium" data-finish="titanium" data-magnetic data-magnetic-strength="0.5">
+                    <div class="orb-core"></div>
+                    <div class="orb-label">TITANIUM</div>
                 </div>
             </div>
 
-            <div class="config-price">
-                <div class="price-label">Price</div>
+            <!-- Gesture Instructions -->
+            <div class="gesture-hint" data-magnetic data-magnetic-strength="0.15">
+                Drag the orbs. Feel them pull towards your cursor.
+            </div>
+        </section>
+
+        <!-- Price Flow -->
+        <section class="price-flow">
+            <div class="price-container" data-magnetic data-magnetic-strength="0.3">
+                <div class="price-label">PRICE</div>
                 <div class="price-amount" id="price-display">$2,400</div>
             </div>
 
-            <button class="add-to-cart-btn" onclick="addToCart()">
-                <span class="btn-text">Add to Cart</span>
-                <span class="btn-price">$2,400</span>
-            </button>
-        </div>
-    </section>
-
-    <!-- Statement -->
-    <section class="statement">
-        <div class="statement-container">
-            <div class="statement-mark">"</div>
-            <h2 class="statement-text">
-                What remains<br>
-                when everything<br>
-                unnecessary is<br>
-                removed.
-            </h2>
-        </div>
-    </section>
-
-    <!-- Features Grid -->
-    <section class="features">
-        <div class="features-container">
-
-            <div class="feature-block">
-                <div class="feature-number">01</div>
-                <div class="feature-label">"MATERIAL"</div>
-                <h3 class="feature-title">Machined<br>Aluminum</h3>
-                <p class="feature-description">
-                    CNC-milled from a single block.<br>
-                    Anodized matte black finish.<br>
-                    Weight: 2.4kg
-                </p>
-            </div>
-
-            <div class="feature-block">
-                <div class="feature-number">02</div>
-                <div class="feature-label">"DIMENSIONS"</div>
-                <h3 class="feature-title">Perfect<br>Proportions</h3>
-                <p class="feature-description">
-                    180mm × 180mm × 90mm<br>
-                    Golden ratio applied.<br>
-                    Nothing arbitrary.
-                </p>
-            </div>
-
-            <div class="feature-block">
-                <div class="feature-number">03</div>
-                <div class="feature-label">"INTERFACE"</div>
-                <h3 class="feature-title">Touch<br>Sensitive</h3>
-                <p class="feature-description">
-                    Capacitive surface.<br>
-                    Haptic feedback.<br>
-                    Gesture control.
-                </p>
-            </div>
-
-            <div class="feature-block">
-                <div class="feature-number">04</div>
-                <div class="feature-label">"FUNCTION"</div>
-                <h3 class="feature-title">Ambient<br>Audio</h3>
-                <p class="feature-description">
-                    360° sound field.<br>
-                    Adaptive EQ.<br>
-                    Room calibration.
-                </p>
-            </div>
-
-        </div>
-    </section>
-
-    <!-- Large Text Block -->
-    <section class="manifesto">
-        <div class="manifesto-container">
-            <div class="manifesto-line">We believe in</div>
-            <div class="manifesto-line">the power of</div>
-            <div class="manifesto-line">reduction.</div>
-        </div>
-    </section>
-
-    <!-- Detail Shot -->
-    <section class="detail">
-        <div class="detail-container">
-            <div class="detail-image">
-                <div class="detail-grid">
-                    <div class="grid-line"></div>
-                    <div class="grid-line"></div>
-                    <div class="grid-line"></div>
+            <!-- Quantum Quantity (Fluid Slider) -->
+            <div class="quantity-flow">
+                <div class="quantity-label" data-magnetic data-magnetic-strength="0.2">QUANTITY</div>
+                <div class="quantity-track" id="quantity-track">
+                    <div class="quantity-handle" id="quantity-handle" data-magnetic data-magnetic-strength="0.6">
+                        <span class="handle-value" id="handle-value">1</span>
+                    </div>
+                    <div class="quantity-wave"></div>
                 </div>
             </div>
-            <div class="detail-info">
-                <div class="detail-label">"PRECISION"</div>
-                <p class="detail-text">
-                    Tolerances measured in microns.<br>
-                    Every edge, every surface, considered.<br>
-                    Manufacturing as meditation.
-                </p>
+        </section>
+
+        <!-- Gravity Cart Zone -->
+        <section class="cart-gravity-zone" id="cart-zone">
+            <div class="gravity-indicator"></div>
+            <div class="zone-label" data-magnetic data-magnetic-strength="0.2">DROP ZONE</div>
+            <div class="zone-instruction">Drag product here to add to cart</div>
+
+            <!-- Cart Items Float Here -->
+            <div class="cart-items-float" id="cart-items"></div>
+        </section>
+
+        <!-- Checkout Wormhole -->
+        <section class="checkout-wormhole" id="checkout-wormhole">
+            <div class="wormhole-core" data-magnetic data-magnetic-strength="0.7">
+                <div class="wormhole-ring"></div>
+                <div class="wormhole-ring"></div>
+                <div class="wormhole-ring"></div>
+                <div class="wormhole-text">CHECKOUT</div>
+                <div class="wormhole-total" id="checkout-total">$0</div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- Specifications -->
-    <section id="specs" class="specs">
-        <div class="specs-container">
-            <div class="specs-header">
-                <h2 class="specs-title">Technical Specifications</h2>
+        <!-- Philosophy -->
+        <section class="philosophy-fluid">
+            <div class="philosophy-text" data-magnetic data-magnetic-strength="0.15">
+                <p>We rejected the static web.</p>
+                <p>Every pixel responds to you.</p>
+                <p>Every element has weight, mass, presence.</p>
+                <p>This is not a page.</p>
+                <p>This is a living canvas.</p>
             </div>
-            <div class="specs-grid">
+        </section>
 
-                <div class="spec-item">
-                    <div class="spec-label">Dimensions</div>
-                    <div class="spec-value">180 × 180 × 90 mm</div>
-                </div>
+    </main>
 
-                <div class="spec-item">
-                    <div class="spec-label">Weight</div>
-                    <div class="spec-value">2.4 kg</div>
-                </div>
+    <!-- Ambient Particles -->
+    <div class="particles" id="particles"></div>
 
-                <div class="spec-item">
-                    <div class="spec-label">Material</div>
-                    <div class="spec-value">6061-T6 Aluminum</div>
-                </div>
-
-                <div class="spec-item">
-                    <div class="spec-label">Finish</div>
-                    <div class="spec-value">Anodized Matte Black</div>
-                </div>
-
-                <div class="spec-item">
-                    <div class="spec-label">Power</div>
-                    <div class="spec-value">USB-C PD 3.0</div>
-                </div>
-
-                <div class="spec-item">
-                    <div class="spec-label">Connectivity</div>
-                    <div class="spec-value">Bluetooth 5.3</div>
-                </div>
-
-                <div class="spec-item">
-                    <div class="spec-label">Audio Output</div>
-                    <div class="spec-value">2 × 25W Full Range</div>
-                </div>
-
-                <div class="spec-item">
-                    <div class="spec-label">Frequency Response</div>
-                    <div class="spec-value">45Hz – 20kHz</div>
-                </div>
-
-            </div>
-        </div>
-    </section>
-
-    <!-- Final Statement -->
-    <section class="closing">
-        <div class="closing-container">
-            <div class="closing-text">
-                <span class="closing-label">"AVAILABILITY"</span>
-                <h2 class="closing-title">Limited Production</h2>
-                <p class="closing-description">
-                    100 units. Numbered.<br>
-                    Expected delivery Q2 2024.
-                </p>
-                <div class="closing-cta">
-                    <a href="#" class="btn-primary">Reserve Your Unit</a>
-                    <span class="closing-note">No deposit required</span>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="footer-container">
-            <div class="footer-left">
-                <span class="footer-copy">© 2024 MONO</span>
-            </div>
-            <div class="footer-right">
-                <a href="#" class="footer-link">Instagram</a>
-                <a href="#" class="footer-link">Email</a>
-            </div>
-        </div>
-    </footer>
-
-    <!-- Cart Sidebar -->
-    <div class="cart-sidebar" id="cart-sidebar">
-        <div class="cart-overlay" onclick="toggleCart()"></div>
-        <div class="cart-panel">
-            <div class="cart-header">
-                <h3 class="cart-title">Your Cart</h3>
-                <button class="cart-close" onclick="toggleCart()">×</button>
-            </div>
-
-            <div class="cart-content" id="cart-content">
-                <div class="cart-empty" id="cart-empty">
-                    <p>Your cart is empty</p>
-                </div>
-                <div class="cart-items" id="cart-items">
-                    <!-- Cart items will be inserted here -->
-                </div>
-            </div>
-
-            <div class="cart-footer">
-                <div class="cart-total">
-                    <span class="total-label">Total</span>
-                    <span class="total-amount" id="total-amount">$0</span>
-                </div>
-                <button class="checkout-btn" onclick="checkout()">
-                    <span>Proceed to Checkout</span>
-                </button>
-                <div class="checkout-note">Free shipping on all orders</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Success Toast -->
-    <div class="toast" id="toast">
-        <div class="toast-content">
-            <span class="toast-icon">✓</span>
-            <span class="toast-text">Added to cart</span>
-        </div>
+    <!-- Toast (Fluid Style) -->
+    <div class="fluid-toast" id="toast">
+        <div class="toast-wave"></div>
+        <span class="toast-text"></span>
     </div>
 
     <script src="script.js"></script>
