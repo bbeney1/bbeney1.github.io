@@ -226,3 +226,284 @@ document.addEventListener('keydown', (e) => {
         keys = [];
     }
 });
+
+// =============================================
+// CONFIGURATOR & CART SYSTEM
+// Mindblowing Interactions
+// =============================================
+
+// Configuration state
+let currentConfig = {
+    finish: 'matte-black',
+    quantity: 1,
+    basePrice: 2400
+};
+
+// Cart state
+let cart = [];
+
+// Price formatting
+const formatPrice = (price) => {
+    return `$${price.toLocaleString()}`;
+};
+
+// Update price display
+const updatePrice = () => {
+    const totalPrice = currentConfig.basePrice * currentConfig.quantity;
+    document.getElementById('price-display').textContent = formatPrice(totalPrice);
+
+    const btnPrice = document.querySelector('.btn-price');
+    if (btnPrice) {
+        btnPrice.textContent = formatPrice(totalPrice);
+    }
+};
+
+// Finish selector
+const selectFinish = (finish) => {
+    currentConfig.finish = finish;
+
+    // Update active state on buttons
+    document.querySelectorAll('.finish-option').forEach(option => {
+        option.classList.remove('active');
+    });
+    document.querySelector(`[data-finish="${finish}"]`).classList.add('active');
+
+    // Update product object appearance
+    const objectShell = document.querySelector('.object-shell');
+    if (objectShell) {
+        objectShell.className = 'object-shell';
+        objectShell.classList.add(finish);
+    }
+};
+
+// Quantity controls
+const increaseQty = () => {
+    if (currentConfig.quantity < 10) {
+        currentConfig.quantity++;
+        document.getElementById('qty-display').textContent = currentConfig.quantity;
+        updatePrice();
+    }
+};
+
+const decreaseQty = () => {
+    if (currentConfig.quantity > 1) {
+        currentConfig.quantity--;
+        document.getElementById('qty-display').textContent = currentConfig.quantity;
+        updatePrice();
+    }
+};
+
+// Show toast notification
+const showToast = (message = 'Added to cart') => {
+    const toast = document.getElementById('toast');
+    const toastText = toast.querySelector('.toast-text');
+    toastText.textContent = message;
+
+    toast.classList.add('show');
+
+    setTimeout(() => {
+        toast.classList.remove('show');
+    }, 2500);
+};
+
+// Update cart count badge
+const updateCartCount = () => {
+    const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+    document.getElementById('cart-count').textContent = totalItems;
+};
+
+// Update cart total
+const updateCartTotal = () => {
+    const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    document.getElementById('total-amount').textContent = formatPrice(total);
+};
+
+// Render cart items
+const renderCart = () => {
+    const cartItems = document.getElementById('cart-items');
+    const cartEmpty = document.getElementById('cart-empty');
+
+    if (cart.length === 0) {
+        cartEmpty.style.display = 'block';
+        cartItems.style.display = 'none';
+    } else {
+        cartEmpty.style.display = 'none';
+        cartItems.style.display = 'block';
+
+        cartItems.innerHTML = cart.map((item, index) => `
+            <div class="cart-item">
+                <div class="cart-item-image">
+                    <div class="cart-item-object ${item.finish}"></div>
+                </div>
+                <div class="cart-item-details">
+                    <div class="cart-item-name">MONO—01</div>
+                    <div class="cart-item-finish">${item.finishName}</div>
+                    <div class="cart-item-quantity">Qty: ${item.quantity}</div>
+                </div>
+                <div class="cart-item-right">
+                    <div class="cart-item-price">${formatPrice(item.price * item.quantity)}</div>
+                    <button class="cart-item-remove" onclick="removeFromCart(${index})">×</button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    updateCartTotal();
+};
+
+// Add to cart
+const addToCart = () => {
+    const finishNames = {
+        'matte-black': 'Matte Black',
+        'brushed-aluminum': 'Brushed Aluminum',
+        'matte-white': 'Matte White',
+        'titanium': 'Titanium'
+    };
+
+    const item = {
+        finish: currentConfig.finish,
+        finishName: finishNames[currentConfig.finish],
+        quantity: currentConfig.quantity,
+        price: currentConfig.basePrice
+    };
+
+    // Check if same finish already in cart
+    const existingIndex = cart.findIndex(cartItem => cartItem.finish === item.finish);
+
+    if (existingIndex >= 0) {
+        cart[existingIndex].quantity += item.quantity;
+    } else {
+        cart.push(item);
+    }
+
+    updateCartCount();
+    renderCart();
+    showToast();
+
+    // Reset quantity to 1
+    currentConfig.quantity = 1;
+    document.getElementById('qty-display').textContent = 1;
+    updatePrice();
+};
+
+// Remove from cart
+const removeFromCart = (index) => {
+    cart.splice(index, 1);
+    updateCartCount();
+    renderCart();
+};
+
+// Toggle cart sidebar
+const toggleCart = () => {
+    const cartSidebar = document.getElementById('cart-sidebar');
+    cartSidebar.classList.toggle('active');
+
+    // Prevent body scroll when cart is open
+    if (cartSidebar.classList.contains('active')) {
+        document.body.style.overflow = 'hidden';
+    } else {
+        document.body.style.overflow = '';
+    }
+};
+
+// Checkout
+const checkout = () => {
+    if (cart.length === 0) {
+        showToast('Your cart is empty');
+        return;
+    }
+
+    const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    console.log('%c 🎯 CHECKOUT INITIATED', 'font-size: 16px; font-weight: 600;');
+    console.log(`%c Total: ${formatPrice(total)}`, 'font-size: 14px; color: #666;');
+    console.log('%c Items:', 'font-size: 14px; color: #666;');
+    cart.forEach(item => {
+        console.log(`  - ${item.finishName} × ${item.quantity}`);
+    });
+
+    showToast('Checkout coming soon...');
+};
+
+// =============================================
+// 3D DRAG-TO-ROTATE
+// =============================================
+
+const setupDragRotate = () => {
+    const objectShell = document.querySelector('.object-shell');
+    if (!objectShell) return;
+
+    let isDragging = false;
+    let startX, startY;
+    let currentRotationX = 0;
+    let currentRotationY = 0;
+    let targetRotationX = 0;
+    let targetRotationY = 0;
+
+    objectShell.addEventListener('mousedown', (e) => {
+        isDragging = true;
+        startX = e.clientX;
+        startY = e.clientY;
+        objectShell.style.cursor = 'grabbing';
+    });
+
+    document.addEventListener('mousemove', (e) => {
+        if (!isDragging) return;
+
+        const deltaX = e.clientX - startX;
+        const deltaY = e.clientY - startY;
+
+        targetRotationY = currentRotationY + (deltaX * 0.5);
+        targetRotationX = currentRotationX - (deltaY * 0.5);
+
+        // Clamp X rotation
+        targetRotationX = Math.max(-30, Math.min(30, targetRotationX));
+
+        objectShell.style.transform = `perspective(1000px) rotateX(${targetRotationX}deg) rotateY(${targetRotationY}deg)`;
+    });
+
+    document.addEventListener('mouseup', () => {
+        if (isDragging) {
+            isDragging = false;
+            currentRotationX = targetRotationX;
+            currentRotationY = targetRotationY;
+            objectShell.style.cursor = 'grab';
+        }
+    });
+
+    // Touch support
+    objectShell.addEventListener('touchstart', (e) => {
+        isDragging = true;
+        const touch = e.touches[0];
+        startX = touch.clientX;
+        startY = touch.clientY;
+        e.preventDefault();
+    });
+
+    document.addEventListener('touchmove', (e) => {
+        if (!isDragging) return;
+
+        const touch = e.touches[0];
+        const deltaX = touch.clientX - startX;
+        const deltaY = touch.clientY - startY;
+
+        targetRotationY = currentRotationY + (deltaX * 0.5);
+        targetRotationX = currentRotationX - (deltaY * 0.5);
+
+        targetRotationX = Math.max(-30, Math.min(30, targetRotationX));
+
+        objectShell.style.transform = `perspective(1000px) rotateX(${targetRotationX}deg) rotateY(${targetRotationY}deg)`;
+    });
+
+    document.addEventListener('touchend', () => {
+        if (isDragging) {
+            isDragging = false;
+            currentRotationX = targetRotationX;
+            currentRotationY = targetRotationY;
+        }
+    });
+};
+
+// Initialize drag-rotate on load
+window.addEventListener('DOMContentLoaded', () => {
+    setupDragRotate();
+});

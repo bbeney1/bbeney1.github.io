@@ -16,7 +16,10 @@
             </div>
             <div class="nav-right">
                 <a href="#specs" class="nav-link">Specifications</a>
-                <a href="#" class="nav-link">Inquire</a>
+                <button class="cart-trigger" onclick="toggleCart()">
+                    <span class="cart-text">Cart</span>
+                    <span class="cart-count" id="cart-count">0</span>
+                </button>
             </div>
         </div>
     </nav>
@@ -39,8 +42,61 @@
                 </div>
             </div>
             <div class="product-caption">
-                <span class="caption-text">Pure form. Zero compromise.</span>
+                <span class="caption-text">Drag to rotate. Pure form. Zero compromise.</span>
             </div>
+        </div>
+    </section>
+
+    <!-- Configurator -->
+    <section class="configurator">
+        <div class="configurator-container">
+            <div class="configurator-header">
+                <div class="config-label">"CONFIGURE"</div>
+                <h3 class="config-title">Make It Yours</h3>
+            </div>
+
+            <div class="config-options">
+                <div class="config-group">
+                    <div class="config-group-label">Finish</div>
+                    <div class="finish-options">
+                        <button class="finish-option active" data-finish="matte-black" onclick="selectFinish('matte-black')">
+                            <div class="finish-swatch matte-black"></div>
+                            <span class="finish-name">Matte Black</span>
+                        </button>
+                        <button class="finish-option" data-finish="brushed-aluminum" onclick="selectFinish('brushed-aluminum')">
+                            <div class="finish-swatch brushed-aluminum"></div>
+                            <span class="finish-name">Brushed Aluminum</span>
+                        </button>
+                        <button class="finish-option" data-finish="matte-white" onclick="selectFinish('matte-white')">
+                            <div class="finish-swatch matte-white"></div>
+                            <span class="finish-name">Matte White</span>
+                        </button>
+                        <button class="finish-option" data-finish="titanium" onclick="selectFinish('titanium')">
+                            <div class="finish-swatch titanium"></div>
+                            <span class="finish-name">Titanium</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="config-group">
+                    <div class="config-group-label">Quantity</div>
+                    <div class="quantity-selector">
+                        <button class="qty-btn" onclick="decreaseQty()">−</button>
+                        <span class="qty-display" id="qty-display">1</span>
+                        <button class="qty-btn" onclick="increaseQty()">+</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="config-price">
+                <div class="price-label">Price</div>
+                <div class="price-amount" id="price-display">$2,400</div>
+            </div>
+
+            <button class="add-to-cart-btn" onclick="addToCart()">
+                <span class="btn-text">Add to Cart</span>
+                <span class="btn-price">$2,400</span>
+            </button>
         </div>
     </section>
 
@@ -220,6 +276,45 @@
             </div>
         </div>
     </footer>
+
+    <!-- Cart Sidebar -->
+    <div class="cart-sidebar" id="cart-sidebar">
+        <div class="cart-overlay" onclick="toggleCart()"></div>
+        <div class="cart-panel">
+            <div class="cart-header">
+                <h3 class="cart-title">Your Cart</h3>
+                <button class="cart-close" onclick="toggleCart()">×</button>
+            </div>
+
+            <div class="cart-content" id="cart-content">
+                <div class="cart-empty" id="cart-empty">
+                    <p>Your cart is empty</p>
+                </div>
+                <div class="cart-items" id="cart-items">
+                    <!-- Cart items will be inserted here -->
+                </div>
+            </div>
+
+            <div class="cart-footer">
+                <div class="cart-total">
+                    <span class="total-label">Total</span>
+                    <span class="total-amount" id="total-amount">$0</span>
+                </div>
+                <button class="checkout-btn" onclick="checkout()">
+                    <span>Proceed to Checkout</span>
+                </button>
+                <div class="checkout-note">Free shipping on all orders</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Toast -->
+    <div class="toast" id="toast">
+        <div class="toast-content">
+            <span class="toast-icon">✓</span>
+            <span class="toast-text">Added to cart</span>
+        </div>
+    </div>
 
     <script src="script.js"></script>
 </body>
